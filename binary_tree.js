@@ -7,8 +7,9 @@ function Node(val){
   function addNode(node, val){
     let temp = node;
     let parent = null;
-    
-    while(temp != null){
+    const SAFETY_VALVE = 1000;
+    let count  =0;
+    while(temp != null && count < SAFETY_VALVE){
       parent = temp;
       if(val < temp.value){
         temp = temp.left;
@@ -16,6 +17,7 @@ function Node(val){
       else if(val >= temp.value){
         temp = temp.right;
       }
+      count++;
     }
     
     if(parent != null){
@@ -31,9 +33,13 @@ function Node(val){
   function deleteNode(node, val){
     let temp = node;
     let parent = null;
+    let SAFETY_VALVE = 2000;
+    let count = 0;
     
-    while(temp != null){
-      
+    console.log("deleting " + val);
+    
+    while(temp != null && count < SAFETY_VALVE){
+      count++;
       if(val < temp.value){
         parent = temp;
         temp = temp.left;
@@ -43,17 +49,18 @@ function Node(val){
         temp = temp.right;
       }
       else{
-        
-        //delete leaf
+        //We have found our target
+        //case 1: delete leaf
         if(temp.left == null && temp.right == null){
           if(temp.value < parent.value){
             parent.left = null;
           }
           else{
-            console.log("deleting " + temp.value)
+
             parent.right = null;
           }
         }
+        //Case 2: promote up because it only has a right tree
         else if(temp.left == null){
           if(temp.value < parent.value){
             parent.left =temp.right;
@@ -64,6 +71,7 @@ function Node(val){
             temp.right = null;
           }
         }
+        //Case 3: promote up because it only has a left tree
         else if(temp.right == null){
           if(temp.value < parent.value){
             parent.left =temp.left;
@@ -74,8 +82,45 @@ function Node(val){
             temp.left = null;
           }
         }
+        //Case 4: Has 2 sub trees
+        else{
+          let firstChild = temp.right;
+          let successor = null;
+          let successorParent = null;
+          if(firstChild.left != null){
+            successorParent = firstChild;
+            successor = firstChild.left;
+            
+            while(successor.left != null && count < SAFTEY_VALVE){
+              successorParent = successor;
+              successor = successor.left;
+              count++;
+            }
+          }
+          
+          if(successor == null){
+            firstChild.left = temp.left;
+            parent.right = firstChild;
+          }
+          else{
+
+            parent.right = successor;
+            
+            if(successorParent != null && successor.right != null ){
+              successParent.left = successor.right;              
+            }
+            
+            successor.right = temp.right;
+          }
+        }
+
+
         temp = null;
       }
+    }
+
+    if(count >= SAFETY_VALVE){
+        console.log("!!!!Released by safety valve!!!!!!!")
     }
     
     return node;
@@ -83,6 +128,14 @@ function Node(val){
   
   function print2DUtil(root, space) 
   { 
+      //safety mechanism
+      if(space > 1000){
+          return;
+      }
+
+      if(space == 0){
+        console.log("******************PRINTING TREE****************");
+      }
       const COUNT = 10;
     
       if (root == null) 
@@ -118,3 +171,24 @@ function Node(val){
   tree = deleteNode(tree, 15);
   tree = deleteNode(tree, 10);
   print2DUtil(tree, 0);
+  addNode(tree, 2);
+  addNode(tree, 1);
+  addNode(tree, 3);
+  print2DUtil(tree, 0);
+  tree = deleteNode(tree, 5);
+  tree = deleteNode(tree, 25);
+  print2DUtil(tree, 0);
+  addNode(tree, 33);
+  addNode(tree, 37);
+  print2DUtil(tree, 0);
+  tree = deleteNode(tree, 30);
+  print2DUtil(tree, 0);
+  tree = deleteNode(tree, 35);
+  print2DUtil(tree, 0);
+  addNode(tree, 43);
+  addNode(tree, 42);
+  print2DUtil(tree, 0);
+  tree = deleteNode(tree, 37);
+  print2DUtil(tree, 0);
+
+
