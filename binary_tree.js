@@ -1,3 +1,5 @@
+//Please read the blog post https://beginningprogrammer.com/programming/easily-delete-a-node-from-a-binary-search-tree-bst/
+//to get a good explanation of the delete algorithm
 function Node(val){
     this.value = val;
     this.left = null;
@@ -31,8 +33,9 @@ function addNode(node, val){
       }
     }
 }
+//Case 1: is attempt to delete a node that does not exist
 
-//DELETE CASE 1: Delete Leaf
+//DELETE CASE 2: Delete Leaf
 function deleteLeaf(node, parent){
     
     let handled = false;
@@ -55,7 +58,7 @@ function deleteLeaf(node, parent){
     return handled;
 }
 
-//DELETE CASE 2: Promote Right Child
+//DELETE CASE 4: Promote Right Child
 function promoteRightChild(node, parent){
     
     let handled = false;
@@ -97,7 +100,7 @@ function promoteLeftChild(node, parent){
     return handled;
 }
 
-//DELETE CASE 4: All hell breaks lose
+//DELETE CASE 5: All hell breaks lose
 //This is one of the ugliest pieces of code that I've written
 //at this point in my career.
 //There are other solutions but this one is mine.
@@ -167,20 +170,33 @@ function findAndPromoteSuccessor(node, parent){
             count++;
           }
       }
-          
+       
+      //I believe these three cases can be combined by
+      //simply assigning the firtst child to the successor
+      //and then following the steps for 5.2 and 5.3.
+      //case 5.1
+      //technically the successor is the node that is
+      //getting promoted but for the sake of this algorithm
+      //the successor is the youngest child of the right child.
       if(successor == null){
            firstChild.left = node.left;
            parent.right = firstChild;
       }
       else{
 
+         //case 5.2
          parent.right = successor;            
          
+         //case 5.3
          //just in case the successor has a right child
-         //it obviously does not have left child because
-         //we walked all the way down as far left as we could
+         //It obviously does not have left child because
+         //we walked all the way down as far left as we could.
+         //However the successor may have a right child so
+         //the successor's parent gets to adopt the right child
+         //of the successor.
          successorParent.left = successor.right;              
             
+
          successor.left = node.left;
          successor.right = node.right;
             
@@ -213,6 +229,8 @@ function deleteNode(root, val){
       else{ //found our target val == current.value
         
         let deleteRoot;
+
+        //case 6:
         //create temporary parent when we are working with the root
         //the reason I chose to create a fake parent is so that
         //the delete functions don't have to check for null parent
